@@ -115,6 +115,16 @@ Environment Used: [https://github.com/NousResearch/atropos/blob/main/environment
 
 ---
 
+## NPC Arena: Fine-Tuning for Immersive Game Dialogue
+
+Atropos now includes a specialized environment for creating dynamic, personality-driven Non-Player Characters (NPCs) for games. This work combines in-depth research with a practical implementation inside the Atropos framework.
+
+*   📄 **[Research Report: A Dozen Ways to Fine-Tune LLMs for NPCs](npc_finetuning_report.md)**: A comprehensive analysis of twelve different methods for fine-tuning small language models for NPC dialogue, from basic prompt engineering to advanced hybrid techniques.
+
+*   🎮 **[NPC Arena Environment](environments/npc_arena_server.py)**: A ready-to-use RLAIF environment where a model is trained to adopt different personas based on "character sheets." An AI judge scores responses on criteria like consistency and engagingness, steering the model toward creating high-quality, immersive dialogue.
+
+---
+
 ## Navigating the Repo
 
 | Category | Description |
