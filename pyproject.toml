@@ -26,6 +26,8 @@ dependencies = [
     "jsonlines",
     "pydantic-cli",
     "hf_transfer",
+    "faiss-cpu",
+    "sentence-transformers",
 ]
 
 [project.scripts]

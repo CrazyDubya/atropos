@@ -3,8 +3,14 @@ import copy
 import random
 from typing import Dict, List, Optional, Tuple
 
+from pathlib import Path
+import faiss
+import json
+import numpy as np
+import torch
 import wandb
 from datasets import load_dataset
+from sentence_transformers import SentenceTransformer
 
 from atroposlib.envs.base import (
     APIServerConfig,
@@ -83,6 +89,9 @@ class NPCArenaEnv(BaseEnv):
         self.judgement_strings = list()
         self.player_prompts = list()
         self.iter = 0
+        self.rag_model = None
+        self.knowledge_base = None
+        self.faiss_index = None
 
     @classmethod
     def config_init(self) -> Tuple[BaseEnvConfig, List[APIServerConfig]]:
@@ -135,6 +144,25 @@ class NPCArenaEnv(BaseEnv):
         ]
         self.iter = 0
 
+        # Initialize the RAG model and knowledge base
+        self.rag_model = SentenceTransformer("all-MiniLM-L6-v2")
+        self._create_knowledge_base()
+        self._build_faiss_index()
+
+    def _create_knowledge_base(self):
+        """Creates a simple knowledge base for the RAG system."""
+        script_dir = Path(__file__).parent
+        knowledge_base_path = script_dir / "knowledge_base.json"
+        with open(knowledge_base_path, "r") as f:
+            data = json.load(f)
+        self.knowledge_base = data["lore"]
+
+    def _build_faiss_index(self):
+        """Builds a FAISS index for the knowledge base."""
+        embeddings = self.rag_model.encode(self.knowledge_base, convert_to_tensor=True)
+        self.faiss_index = faiss.IndexFlatL2(embeddings.shape[1])
+        self.faiss_index.add(embeddings.cpu().detach().numpy())
+
     def save_checkpoint(self, step, data=None):
         if data is None:
             data = {}
@@ -162,9 +190,16 @@ class NPCArenaEnv(BaseEnv):
         as detailed in the research report `npc_finetuning_report.md`.
         By injecting this context, the NPC can respond to dynamic game events.
         """
-        # Placeholder logic: If the player mentions a specific item, provide context.
-        if "amulet of eldoria" in player_prompt.lower():
-            return "RAG Context: The Amulet of Eldoria is rumored to be hidden in the Dragon's Maw cave, guarded by ancient spirits. The player has not yet started the 'Dragon's Amulet' quest."
+        if not self.rag_model or not self.faiss_index:
+            return ""
+
+        query_embedding = self.rag_model.encode(player_prompt, convert_to_tensor=True)
+        query_embedding = query_embedding.cpu().detach().numpy()
+        D, I = self.faiss_index.search(np.array([query_embedding]).astype('float32'), k=1)
+
+        if I[0][0] != -1:
+            return f"RAG Context: {self.knowledge_base[I[0][0]]}"
+
         return ""  # Return empty string if no relevant context is found.
 
     async def collect_trajectories(self, item: Dict) -> Tuple[Optional[ScoredDataGroup], List]:
