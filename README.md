@@ -77,7 +77,7 @@ https://huggingface.co/NousResearch/DeepHermes-ToolCalling-Specialist-Atropos
 
 
 Environment Used:
-[https://github.com/NousResearch/Atropos/blob/main/environments/tool_calling_server.py](https://github.com/NousResearch/atropos/blob/main/environments/tool_calling_server.py)
+[https://github.com/NousResearch/atropos/blob/main/environments/tool_calling_server.py](https://github.com/NousResearch/atropos/blob/main/environments/tool_calling_server.py)
 
 ---
 
@@ -95,7 +95,7 @@ Model Artifact:
 https://huggingface.co/NousResearch/DeepHermes-Financial-Fundamentals-Prediction-Specialist-Atropos
 
 Environment Used:
-[https://github.com/NousResearch/Atropos/blob/main/environments/fundamental_prediction_environment.py](https://github.com/NousResearch/atropos/blob/main/environments/fundamental_prediction_environment.py)
+[https://github.com/NousResearch/atropos/blob/main/environments/fundamental_prediction_environment.py](https://github.com/NousResearch/atropos/blob/main/environments/fundamental_prediction_environment.py)
 
 ---
 
@@ -135,6 +135,7 @@ Atropos now includes a specialized environment for creating dynamic, personality
 
 Key Documents:
 - [Base Environment Class](atroposlib/envs/README.md) - Documentation for creating custom environments
+- [ManagedServer Guide](atroposlib/envs/server_handling/MANAGED_SERVER.md) - **Recommended approach** for automatic token and logprob tracking
 - [Environments Overview and Contribution Guide](environments/community/README.md) - Documentation for existing environments and how to contribute new ones.
 - [Full Environment Config Options](CONFIG.md) - Documentation for creating custom environments
 - [Example Trainer](example_trainer/README.md) - Getting started with training
@@ -179,6 +180,8 @@ pre-commit install
 2. **Run an Example Environment**
 
   You should edit the config_init section of the environment file you want ([For example, in GSM8K Environment](https://github.com/NousResearch/atropos/blob/main/environments/gsm8k_server.py#L53)) to point to a running VLLM or SGLang inference server as well as any other [configuration changes](CONFIG.md) you'd like to make, such as the group size, then:
+
+  > **Note:** By default, Atropos uses the OpenAI-compatible API endpoint which works with any provider. For enhanced features, use `VLLMServer` (atroposlib/envs/server_handling/vllm_server.py) or `SGLangServer` (atroposlib/envs/server_handling/sglang_server.py) for direct access to native APIs with full token and logprob tracking.
 
    ```bash
    # Start the API server
@@ -358,9 +361,9 @@ If you have found the library helpful in your work, you can cite this repository
 @misc{atropos,
   title        = {Atropos: An Async First Environment Rollout Controller},
   author       = {Mahan, Dakota and Jin, Roger and Teknium and Sands, Shannon and Yatsenko, Artem and Suphavadeeprasit, Jai and Malhotra, Karan and Guang, Chen and Li, Joe},
-  howpublished = {\url{https://www.github.com/NousResearch/Atropos}},
+  howpublished = {\url{https://www.github.com/NousResearch/atropos}},
   year         = {2025},
-  month        = apr,
+  month        = {apr},
   note         = {Version 0.3.0},
 }
 ```
@@ -375,4 +378,4 @@ Please follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 ---
 
 ## License
-Atropos is uses the MIT license, see the [LICENSE](LICENSE) file here for more information
+Atropos uses the MIT license, see the [LICENSE](LICENSE) file here for more information
